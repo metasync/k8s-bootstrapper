@@ -43,6 +43,10 @@ bootstrap.kind.cluster: install.kubectl install.kind-cli \
 	install.argocd-cli \
 	setup.argocd \
 	reset.argocd.password \
+	install.argo-cli \
+	setup.argo.workflows \
+	patch.argo.workflows.authentication \
+	setup.argo.events \
 	setup.tekton \
 	show.post-bootstrap-message
 

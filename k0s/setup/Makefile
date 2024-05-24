@@ -50,6 +50,10 @@ bootstrap.k0s.cluster: install.kubectl install.k0sctl \
 	install.argocd-cli \
 	setup.argocd \
 	reset.argocd.password \
+	install.argo-cli \
+	setup.argo.workflows \
+	patch.argo.workflows.authentication \
+	setup.argo.events \
 	setup.tekton \
 	show.post-bootstrap-message
 

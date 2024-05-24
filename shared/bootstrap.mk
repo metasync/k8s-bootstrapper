@@ -42,7 +42,7 @@ install.argocd-cli:
 
 setup.argocd:
 	@echo "Setting up Argo CD ..." && \
-		((kubectl get namespaces --kubeconfig ${KUBE_CONFIG} | grep -q argocd && \
+		((kubectl get namespaces --kubeconfig ${KUBE_CONFIG} | grep -q -w argocd && \
 		echo "Namespace argocd has been created.") || \
 		kubectl create namespace argocd --kubeconfig ${KUBE_CONFIG}) && \
 		kubectl apply \
@@ -129,6 +129,58 @@ setup.tekton: setup.tekton.pipelines setup.tekton.triggers setup.tekton.dashboar
 delete.tekton:
 	@kubectl delete namespace tekton-pipelines --kubeconfig ${KUBE_CONFIG} && \
 		kubectl delete namespace tekton-pipelines-resolvers --kubeconfig ${KUBE_CONFIG}
+
+install.argo-cli:
+	@(argo version 2>&1 |grep -q ${ARGO_WORKFLOWS_VERSION} && \
+		echo "argo ${ARGO_WORKFLOWS_VERSION} has been installed.") || \
+		(echo "Installing Argo CLI (${CLI_OS}-${CLI_ARCH}) ..." && \
+		curl -sSL -o ${K8S_BIN}/argo-${CLI_OS}-${CLI_ARCH}-${ARGO_WORKFLOWS_VERSION}.gz https://github.com/argoproj/argo-workflows/releases/download/v${ARGO_WORKFLOWS_VERSION}/argo-${CLI_OS}-${CLI_ARCH}.gz && \
+		gunzip ${K8S_BIN}/argo-${CLI_OS}-${CLI_ARCH}-${ARGO_WORKFLOWS_VERSION}.gz && \
+		chmod +x ${K8S_BIN}/argo-${CLI_OS}-${CLI_ARCH}-${ARGO_WORKFLOWS_VERSION} && \
+		sudo ln -sf ${K8S_BIN}/argo-${CLI_OS}-${CLI_ARCH}-${ARGO_WORKFLOWS_VERSION} /usr/local/bin/argo)
+
+
+setup.argo.workflows:
+	@echo "Setting up Argo Workflows ..." && \
+		((kubectl get namespaces --kubeconfig ${KUBE_CONFIG} | grep -q -w argo && \
+		echo "Namespace argo has been created.") || \
+		kubectl create namespace argo --kubeconfig ${KUBE_CONFIG}) && \
+		kubectl apply \
+			-n argo \
+			-f https://github.com/argoproj/argo-workflows/releases/download/v${ARGO_WORKFLOWS_VERSION}/install.yaml \
+			--kubeconfig ${KUBE_CONFIG} && \
+		kubectl apply -R -f 002_argo_workflows --kubeconfig ${KUBE_CONFIG}
+
+patch.argo.workflows.authentication:
+	@echo "Authentication mode to Argo Workflows is being switched to 'server' ..." && \
+		kubectl patch deployment \
+			argo-server \
+			--namespace argo \
+			--type='json' \
+			-p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": [  \
+			"server", \
+			"--auth-mode=server" \
+			]}]'
+
+delete.argo.workflows:
+	@kubectl delete namespace argo --kubeconfig ${KUBE_CONFIG}
+
+setup.argo.events:
+	@echo "Setting up Argo Events ..." && \
+		((kubectl get namespaces --kubeconfig ${KUBE_CONFIG} | grep -q -w argo-events && \
+		echo "Namespace argo-events has been created.") || \
+		kubectl create namespace argo-events --kubeconfig ${KUBE_CONFIG}) && \
+		kubectl apply \
+			-n argo-events \
+			-f https://github.com/argoproj/argo-events/releases/download/v${ARGO_EVENTS_VERSION}/install.yaml \
+			--kubeconfig ${KUBE_CONFIG} && \
+		kubectl apply \
+			-n argo-events \
+			-f https://github.com/argoproj/argo-events/releases/download/v${ARGO_EVENTS_VERSION}/install-validating-webhook.yaml \
+			--kubeconfig ${KUBE_CONFIG}
+
+delete.argo.events:
+	@kubectl delete namespace argo-events --kubeconfig ${KUBE_CONFIG}
 
 show.post-bootstrap-message:
 	@echo && \

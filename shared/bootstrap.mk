@@ -182,6 +182,17 @@ setup.argo.events:
 delete.argo.events:
 	@kubectl delete namespace argo-events --kubeconfig ${KUBE_CONFIG}
 
+install.helm:
+	@(helm version 2>&1 |grep -q ${HELM_VERSION} && \
+		echo "helm ${HELM_VERSION} has been installed.") || \
+		(echo "Installing helm (${CLI_OS}-${CLI_ARCH}) ..." && \
+		mkdir -p ${HELM_TMP} && \
+		curl -sSL -o ${HELM_TMP}/helm-${CLI_OS}-${CLI_ARCH}-${HELM_VERSION}.tar.gz https://get.helm.sh/helm-v${HELM_VERSION}-${CLI_OS}-${CLI_ARCH}.tar.gz && \
+		tar -zxf ${HELM_TMP}/helm-${CLI_OS}-${CLI_ARCH}-${HELM_VERSION}.tar.gz -C ${HELM_TMP} && \
+		mv ${HELM_TMP}/${CLI_OS}-${CLI_ARCH}/helm ${K8S_BIN}/helm-${CLI_OS}-${CLI_ARCH}-${HELM_VERSION} && \
+		rm -fr ${HELM_TMP} && \
+		sudo ln -sf ${K8S_BIN}/helm-${CLI_OS}-${CLI_ARCH}-${HELM_VERSION} /usr/local/bin/helm) 
+
 show.post-bootstrap-message:
 	@echo && \
 		echo "Congratulation! Your kubernetes cluster has been bootstrapped successfully." && \

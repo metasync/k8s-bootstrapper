@@ -36,7 +36,7 @@ delete.ingress-nginx:
 	@kubectl delete namespace ingress-nginx --kubeconfig ${KUBE_CONFIG}
 
 
-bootstrap.kind.cluster: install.kubectl install.kind-cli \
+bootstrap.kind.cluster: install.kubectl install.kind-cli install.helm \
   create.kind.cluster \
 	setup.ingress-nginx \
 	setup.cert-manager \
@@ -50,3 +50,8 @@ bootstrap.kind.cluster: install.kubectl install.kind-cli \
 	setup.tekton \
 	show.post-bootstrap-message
 
+bootstrap.kind.cluster.min: install.kubectl install.kind-cli install.helm \
+  create.kind.cluster \
+	setup.ingress-nginx \
+	setup.cert-manager \
+	show.post-bootstrap-message

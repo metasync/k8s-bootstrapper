@@ -43,7 +43,7 @@ setup.ingress-nginx:
 delete.ingress-nginx:
 	@kubectl delete namespace ingress-nginx --kubeconfig ${KUBE_CONFIG}
 
-bootstrap.k0s.cluster: install.kubectl install.k0sctl \
+bootstrap.k0s.cluster: install.kubectl install.k0sctl install.helm \
 	create.k0s.cluster \
 	setup.ingress-nginx \
 	setup.cert-manager \
@@ -57,4 +57,8 @@ bootstrap.k0s.cluster: install.kubectl install.k0sctl \
 	setup.tekton \
 	show.post-bootstrap-message
 
-
+bootstrap.k0s.cluster.min: install.kubectl install.k0sctl install.helm \
+	create.k0s.cluster \
+	setup.ingress-nginx \
+	setup.cert-manager \
+	show.post-bootstrap-message

@@ -7,6 +7,7 @@ K8s-bootstrapper is a tool to automate Kubernetes cluster bootstrapping with def
 K8s-bootstrapper currently support bootstrapping for
   * kind - https://kind.sigs.k8s.io
   * k0s - https://k0sproject.io
+  * Orbstack - https://orbstack.dev
 
 We will continue to automate bootstrappping other popular Kubernetes clusters.
 
